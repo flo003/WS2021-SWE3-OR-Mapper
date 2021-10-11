@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WS2021.SWE3.EXAMPLE_APP.Model;
 
 namespace WS2021.SWE3.EXAMPLE_APP.Controllers
 {

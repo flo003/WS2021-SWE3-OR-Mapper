@@ -6,7 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WS2021.SWE3.OR-Mapper\WS2021.SWE3.OR-Mapper.csproj" />
   </ItemGroup>
 
 </Project>

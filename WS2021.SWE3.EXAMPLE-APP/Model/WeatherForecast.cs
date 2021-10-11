@@ -1,9 +1,16 @@
 using System;
 
-namespace WS2021.SWE3.EXAMPLE_APP
+using WS2021.SWE3.OR_Mapper.ModelAttributes;
+
+namespace WS2021.SWE3.EXAMPLE_APP.Model
 {
+    [Entity (TableName = "WeatherForecasts")]
     public class WeatherForecast
     {
+        [PrimaryKey]
+        public int Id { get; set; }
+
+        [Field (ColumnTypeName = "timestamp")]
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }
