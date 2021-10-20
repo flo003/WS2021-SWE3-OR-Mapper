@@ -33,11 +33,17 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
         public bool IsPrimaryKey { get; set; }
         public bool IsForeignKey { get; set; }
         public bool IsEntity { get; set; } = false;
+        public bool IsExternal { get; set; } = false;
+        public string RemoteTableName { get; internal set; }
+        public string RemoteTableColumnName { get; internal set; }
+        public bool IsManyToMany { get; set; } = false;
+        
         public object ToColumnType(object value)
         {
-            if (IsForeignKey)
+            if (IsForeignKey && value != null)
             {
-                return Entity.PrimaryKey.ToColumnType(Entity.PrimaryKey.GetValue(value));
+                ModelEntity modelEntityForeign = new ModelEntity(Type);
+                return modelEntityForeign.PrimaryKey.ToColumnType(modelEntityForeign.PrimaryKey.GetValue(value));
             }
 
             if (Type == ColumnType) { return value; }
@@ -49,11 +55,41 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
                 if (ColumnType == typeof(long)) { return (long)(((bool)value) ? 1 : 0); }
             }
 
+            if (Type.IsEnum) { return (Int32) value; }
+
+            return value;
+        }
+
+        public object ToFieldType<T>(object value, ICollection<object> localCache, Repository<T> repository)
+        {
+            if (IsForeignKey)
+            {
+                return repository.InitObject(Type, value, localCache);
+            }
+            if (Type == typeof(bool))
+            {
+                if (value is int) { return ((int)value != 0); }
+                if (value is short) { return ((short)value != 0); }
+                if (value is long) { return ((long)value != 0); }
+            }
+
+            if (Type == typeof(short)) { return Convert.ToInt16(value); }
+            if (Type == typeof(int)) { return Convert.ToInt32(value); }
+            if (Type == typeof(long)) { return Convert.ToInt64(value); }
+
+            if (Type.IsEnum) { return Enum.ToObject(Type, Convert.ToInt32(value)); }
+
             return value;
         }
 
         public object ToFieldType(object value)
         {
+            if (IsForeignKey)
+            {
+
+                // return Orm._CreateObject(Type, value, localCache);
+                return null;
+            }
             if (Type == typeof(bool))
             {
                 if (value is int) { return ((int)value != 0); }

@@ -32,8 +32,9 @@ namespace WS2021.SWE3.EXAMPLE_APP
             dbSetup = new DbSetup();
             try
             {
-                dbSetup.WeatherForecastRepository.Setup();
+                //dbSetup.WeatherForecastRepository.Setup();
                 dbSetup.CourseRepository.Setup();
+                dbSetup.TeacherRepository.Setup();
             }
             catch(PostgresException exception)
             {
@@ -43,9 +44,12 @@ namespace WS2021.SWE3.EXAMPLE_APP
             var course1 = dbSetup.CourseRepository.Get("1");
             Console.WriteLine(course1);
             course1.Name = "Test";
+            course1.Teacher.BirthDate = DateTime.Now;
             dbSetup.CourseRepository.Save(course1);
             var course2 = dbSetup.CourseRepository.Get("1");
             Console.WriteLine(course2);
+            var teacher1 = dbSetup.TeacherRepository.Get("1");
+            Console.WriteLine(teacher1);
             //  CreateHostBuilder(args).Build().Run();
         }
 

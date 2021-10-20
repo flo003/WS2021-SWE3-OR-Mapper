@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +39,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
                 if(propertyInfo.CanWrite && propertyInfo.CanRead)
                 {
                     ModelField newModelField = CreateModelField(propertyInfo);
-                    if (newModelField != null && !newModelField.IsEntity)
+                    if (newModelField != null)
                     {
                         fields.Add(newModelField);
                         if (newModelField.IsPrimaryKey)
@@ -49,6 +50,8 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
                 }
             }
             Fields = fields.ToArray();
+            InternalFields = Fields.Where((field) => field.IsExternal == false).ToArray();
+            ExternalFields = Fields.Where((field) => field.IsExternal == true).ToArray();
         }
 
         private ModelField CreateModelField(PropertyInfo propertyInfo)
@@ -78,6 +81,18 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
                 modelField.IsPrimaryKey = true;
             }
 
+            ForeignKeyAttribute foreignKeyAttribute = modelField.Member.GetCustomAttribute(typeof(ForeignKeyAttribute)) as ForeignKeyAttribute;
+            if (foreignKeyAttribute != null && foreignKeyAttribute is ForeignKeyAttribute)
+            {
+                modelField.IsForeignKey = true;
+                modelField.IsExternal = typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType);
+                if (modelField.IsExternal)
+                {
+                    modelField.RemoteTableName = foreignKeyAttribute.RemoteTableName;
+                    modelField.RemoteTableColumnName = foreignKeyAttribute.RemoteTableColumnName;
+                }
+            }
+
             EntityAttribute entityAttribute = modelField.Type.GetCustomAttribute(typeof(EntityAttribute)) as EntityAttribute;
             if (entityAttribute != null && entityAttribute is EntityAttribute)
             {
@@ -90,18 +105,20 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
         public Type Type { get; private set; }
         public string TableName { get; private set; }
         public ModelField[] Fields { get; private set; }
+        public ModelField[] ExternalFields { get; private set; }
+        public ModelField[] InternalFields { get; private set; }
         public ModelField PrimaryKey { get; private set; }
-        public string GetSQL(string prefix = null)
+        public string GetSQLInternalFields(string prefix = null)
         {
             if (prefix == null)
             {
                 prefix = "";
             }
             string rval = "SELECT ";
-            for (int i = 0; i < Fields.Length; i++)
+            for (int i = 0; i < InternalFields.Length; i++)
             {
                 if (i > 0) { rval += ", "; }
-                rval += prefix.Trim() + Fields[i].ColumnName;
+                rval += prefix.Trim() + InternalFields[i].ColumnName;
             }
             rval += (" FROM " + TableName);
 

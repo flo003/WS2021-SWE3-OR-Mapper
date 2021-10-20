@@ -16,9 +16,10 @@ namespace WS2021.SWE3.EXAMPLE_APP
 
         private Repository<WeatherForecast> weatherForecastRepository;
         private Repository<Course> courseRepository;
-
         public Repository<WeatherForecast> WeatherForecastRepository { get { return weatherForecastRepository; } }
         public Repository<Course> CourseRepository { get { return courseRepository; } }
+        private Repository<Teacher> teacherRepository;
+        public Repository<Teacher> TeacherRepository { get { return teacherRepository; } }
         public DbSetup()
         {
             ConnectDatabase();
@@ -42,6 +43,8 @@ namespace WS2021.SWE3.EXAMPLE_APP
                 weatherForecastRepository.Connection = _databaseConnection;
                 courseRepository = new Repository<Course>(_databaseConnection, createTablePropertiesConversion);
                 courseRepository.Connection = _databaseConnection;
+                teacherRepository = new Repository<Teacher>(_databaseConnection, createTablePropertiesConversion);
+                teacherRepository.Connection = _databaseConnection;
             }
             catch (PostgresException exception)
             {

@@ -10,7 +10,6 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
         [PrimaryKey]
         public int Id { get; set; }
 
-        [Field (ColumnTypeName = "timestamp")]
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }

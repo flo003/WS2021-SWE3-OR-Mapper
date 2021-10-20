@@ -38,6 +38,7 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
 
 
         /// <summary>Gets or sets the person gender.</summary>
+        [Field(ColumnType = typeof(Int32))]
         public Gender Gender { get; set; }
 
 

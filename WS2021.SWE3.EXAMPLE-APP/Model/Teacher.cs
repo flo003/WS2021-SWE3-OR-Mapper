@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using WS2021.SWE3.OR_Mapper.ModelAttributes;
 
 namespace WS2021.SWE3.EXAMPLE_APP.Model
@@ -19,5 +19,7 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
         [Field(ColumnName = "HDATE")]
         /// <summary>Gets or sets the teacher's hire date.</summary>
         public DateTime HireDate { get; set; }
+        [ForeignKey(ColumnName = "KTEACHER", RemoteTableName = "Courses", RemoteTableColumnName = "KTEACHER")]
+        public List<Course> Courses { get; private set; } = new List<Course>();
     }
 }

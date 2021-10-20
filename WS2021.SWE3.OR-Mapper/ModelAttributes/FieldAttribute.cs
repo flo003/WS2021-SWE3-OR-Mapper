@@ -10,6 +10,5 @@ namespace WS2021.SWE3.OR_Mapper.ModelAttributes
     {
         public string ColumnName { get; set; }
         public Type ColumnType { get; set; }
-        public string ColumnTypeName { get; set; }
     }
 }

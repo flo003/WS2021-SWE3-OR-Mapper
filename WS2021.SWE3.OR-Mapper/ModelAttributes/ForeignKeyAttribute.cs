@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace WS2021.SWE3.OR_Mapper.ModelAttributes
 {
-    public class ForeignKeyAttribute : Attribute
+    public class ForeignKeyAttribute : FieldAttribute
     {
-        public string ColumnName { get; set; }
+        public string RemoteTableName = null;
+
+        public string RemoteTableColumnName = null;
     }
 }
