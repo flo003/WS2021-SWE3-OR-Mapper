@@ -17,15 +17,17 @@ namespace WS2021.SWE3.EXAMPLE_APP
         private static DbSetup dbSetup;
         public static void Main(string[] args)
         {
-            Course course = new Course()
+            Customer customer = new Customer()
             {
-               ID = "1",
-               Name = "GES",
-               Teacher = new Teacher()
+                Id = 1,
+                Firstname = "GES",
+                BroughtBooks = new List<Book>()
                {
-                   ID = "1",
-                   FirstName = "Hello",
-                   Name = "World",
+                   new Book()
+                   {
+                       Id = 1,
+                       Name = "GOG"
+                   }
                    
                }
             };
@@ -33,23 +35,23 @@ namespace WS2021.SWE3.EXAMPLE_APP
             try
             {
                 //dbSetup.WeatherForecastRepository.Setup();
-                dbSetup.CourseRepository.Setup();
-                dbSetup.TeacherRepository.Setup();
+                dbSetup.BookRepository.Setup();
+                dbSetup.CustomerRepository.Setup();
             }
             catch(PostgresException exception)
             {
                 Console.WriteLine(exception);
             }
-            dbSetup.CourseRepository.Save(course);
-            var course1 = dbSetup.CourseRepository.Get("1");
-            Console.WriteLine(course1);
-            course1.Name = "Test";
-            course1.Teacher.BirthDate = DateTime.Now;
-            dbSetup.CourseRepository.Save(course1);
-            var course2 = dbSetup.CourseRepository.Get("1");
-            Console.WriteLine(course2);
-            var teacher1 = dbSetup.TeacherRepository.Get("1");
-            Console.WriteLine(teacher1);
+            dbSetup.CustomerRepository.Save(customer);
+            var customer1 = dbSetup.CustomerRepository.Get(1);
+            Console.WriteLine(customer1);
+            customer1.Firstname = "Test";
+            customer1.BroughtBooks.First().ReleaseDate = DateTime.Now;
+            dbSetup.CustomerRepository.Save(customer1);
+            var customer2 = dbSetup.CustomerRepository.Get(1);
+            Console.WriteLine(customer2);
+            var book1 = dbSetup.BookRepository.Get(1);
+            Console.WriteLine(book1);
             //  CreateHostBuilder(args).Build().Run();
         }
 

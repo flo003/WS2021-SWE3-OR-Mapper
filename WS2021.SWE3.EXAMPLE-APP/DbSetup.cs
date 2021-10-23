@@ -14,12 +14,10 @@ namespace WS2021.SWE3.EXAMPLE_APP
 
         private string connectionString = "Host=localhost;Username=postgres;Password=postgres;Database=postgres";
 
-        private Repository<WeatherForecast> weatherForecastRepository;
-        private Repository<Course> courseRepository;
-        public Repository<WeatherForecast> WeatherForecastRepository { get { return weatherForecastRepository; } }
-        public Repository<Course> CourseRepository { get { return courseRepository; } }
-        private Repository<Teacher> teacherRepository;
-        public Repository<Teacher> TeacherRepository { get { return teacherRepository; } }
+        private Repository<Book> bookRepository;
+        private Repository<Customer> customerRepository;
+        public Repository<Book> BookRepository { get { return bookRepository; } }
+        public Repository<Customer> CustomerRepository { get { return customerRepository; } }
         public DbSetup()
         {
             ConnectDatabase();
@@ -39,12 +37,10 @@ namespace WS2021.SWE3.EXAMPLE_APP
                     [typeof(Int16)] = "numeric",
                     [typeof(DateTime)] = "timestamp",
                 };
-                weatherForecastRepository = new Repository<WeatherForecast>(_databaseConnection, createTablePropertiesConversion);
-                weatherForecastRepository.Connection = _databaseConnection;
-                courseRepository = new Repository<Course>(_databaseConnection, createTablePropertiesConversion);
-                courseRepository.Connection = _databaseConnection;
-                teacherRepository = new Repository<Teacher>(_databaseConnection, createTablePropertiesConversion);
-                teacherRepository.Connection = _databaseConnection;
+                bookRepository = new Repository<Book>(_databaseConnection, createTablePropertiesConversion);
+                bookRepository.Connection = _databaseConnection;
+                customerRepository = new Repository<Customer>(_databaseConnection, createTablePropertiesConversion);
+                customerRepository.Connection = _databaseConnection;
             }
             catch (PostgresException exception)
             {
