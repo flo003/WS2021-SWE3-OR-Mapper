@@ -50,8 +50,8 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
                 }
             }
             Fields = fields.ToArray();
-            InternalFields = Fields.Where((field) => field.IsExternal == false).ToArray();
-            ExternalFields = Fields.Where((field) => field.IsExternal == true).ToArray();
+            LocalFields = Fields.Where((field) => field.IsForeignField == false).ToArray();
+            ForeignFields = Fields.Where((field) => field.IsForeignField == true).ToArray();
         }
 
         private ModelField CreateModelField(PropertyInfo propertyInfo)
@@ -63,11 +63,15 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             {
                 return null;
             }
+
             FieldAttribute fieldAttribute = modelField.Member.GetCustomAttribute(typeof(FieldAttribute)) as FieldAttribute;
+            modelField.IsNullable = true; // default nullable
             if (fieldAttribute != null && fieldAttribute is FieldAttribute)
             {
                 modelField.ColumnName = fieldAttribute?.ColumnName ?? propertyInfo.Name;
-                modelField.ColumnType = fieldAttribute?.ColumnType ?? propertyInfo.PropertyType;
+                modelField.ColumnType = propertyInfo.PropertyType;
+                modelField.ColumnDbType = fieldAttribute.ColumnDbType;
+                modelField.IsNullable = fieldAttribute.Nullable;
             }
             else
             {
@@ -79,17 +83,19 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             if (primaryAttribute != null && primaryAttribute is PrimaryKeyAttribute)
             {
                 modelField.IsPrimaryKey = true;
+                modelField.IsNullable = false;
             }
 
             ForeignKeyAttribute foreignKeyAttribute = modelField.Member.GetCustomAttribute(typeof(ForeignKeyAttribute)) as ForeignKeyAttribute;
             if (foreignKeyAttribute != null && foreignKeyAttribute is ForeignKeyAttribute)
             {
                 modelField.IsForeignKey = true;
-                modelField.IsExternal = typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType);
-                if (modelField.IsExternal)
+                modelField.IsForeignField = typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType);
+                if (modelField.IsForeignField)
                 {
                     modelField.RemoteTableName = foreignKeyAttribute.RemoteTableName;
                     modelField.RemoteTableColumnName = foreignKeyAttribute.RemoteTableColumnName;
+                    modelField.IsManyToMany = (!string.IsNullOrWhiteSpace(modelField.RemoteTableName));
                 }
             }
 
@@ -98,31 +104,48 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             {
                 modelField.IsEntity = true;
             }
-
             return modelField;
         }
 
         public Type Type { get; private set; }
         public string TableName { get; private set; }
         public ModelField[] Fields { get; private set; }
-        public ModelField[] ExternalFields { get; private set; }
-        public ModelField[] InternalFields { get; private set; }
+        public ModelField[] ForeignFields { get; private set; }
+        public ModelField[] LocalFields { get; private set; }
         public ModelField PrimaryKey { get; private set; }
-        public string GetSQLInternalFields(string prefix = null)
+        public string GetSQLLocalFields(string prefix = null)
         {
+            string resultValue = "SELECT ";
             if (prefix == null)
             {
                 prefix = "";
             }
-            string rval = "SELECT ";
-            for (int i = 0; i < InternalFields.Length; i++)
-            {
-                if (i > 0) { rval += ", "; }
-                rval += prefix.Trim() + InternalFields[i].ColumnName;
-            }
-            rval += (" FROM " + TableName);
+            resultValue += GetSQLLocalFieldsColumns(prefix);
+            resultValue += (" FROM " + TableName);
 
-            return rval;
+            return resultValue;
+        }
+
+
+        public string GetSQLLocalFieldsColumns(string prefix = "")
+        {
+            string resultValue = "";
+            for (int i = 0; i < LocalFields.Length; i++)
+            {
+                if (i > 0) { resultValue += ", "; }
+                resultValue += prefix.Trim() + LocalFields[i].ColumnName;
+            }
+            return resultValue;
+        }
+
+        public ModelField GetFieldForColumn(string columnName)
+        {
+            columnName = columnName.ToUpper();
+            foreach (ModelField i in LocalFields)
+            {
+                if (i.ColumnName.ToUpper() == columnName.ToUpper()) { return i; }
+            }
+            return null;
         }
     }
 }

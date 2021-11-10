@@ -38,9 +38,7 @@ namespace WS2021.SWE3.EXAMPLE_APP
                     [typeof(DateTime)] = "timestamp",
                 };
                 bookRepository = new Repository<Book>(_databaseConnection, createTablePropertiesConversion);
-                bookRepository.Connection = _databaseConnection;
                 customerRepository = new Repository<Customer>(_databaseConnection, createTablePropertiesConversion);
-                customerRepository.Connection = _databaseConnection;
             }
             catch (PostgresException exception)
             {
