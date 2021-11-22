@@ -88,8 +88,8 @@ namespace WS2021.SWE3.EXAMPLE_APP
             Console.WriteLine($"{book1.Id} {book1.Name}");
             var book3Delete = dbSetup.BookRepository.Get("3");
             Console.WriteLine($"{book3Delete.Id} {book3Delete.Name}");
-            //dbSetup.BookRepository.Delete(book3Delete);
-            // dbSetup.BookRepository.Delete(book1);
+            dbSetup.BookRepository.Delete(book3Delete);
+            dbSetup.BookRepository.Delete(book1);
             //  CreateHostBuilder(args).Build().Run();
 
             EntityRegistry entityRegistry = new EntityRegistry();

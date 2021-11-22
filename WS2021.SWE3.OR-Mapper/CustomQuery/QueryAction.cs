@@ -32,7 +32,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return fld.GetValue(cex.Value);
         }
 
-        public QueryGroup<K> Equals<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> Equals<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -43,7 +43,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> NotEquals<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> NotEquals<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -54,7 +54,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> GreaterThan<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> GreaterThan<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -64,7 +64,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             paramNumber++;
             return _queryGroup;
         }
-        public QueryGroup<K> LessOrEqual<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> LessOrEqual<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -75,7 +75,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> LesserThan<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> LesserThan<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -86,7 +86,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> GreaterOrEqualThan<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> GreaterOrEqualThan<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -97,7 +97,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> Like<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> Like<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -108,7 +108,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> NotLike<T>(Expression<Func<K,T>> property, T value)
+        public QueryGroup<K> NotLike<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -119,7 +119,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> In<T>(Expression<Func<K,T>> property, List<T> value)
+        public QueryGroup<K> In<T>(Expression<Func<K, T>> property, List<T> value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
@@ -130,7 +130,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             return _queryGroup;
         }
 
-        public QueryGroup<K> NotIn<T>(Expression<Func<K,T>> property, List<T> value)
+        public QueryGroup<K> NotIn<T>(Expression<Func<K, T>> property, List<T> value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(typeof(K));
