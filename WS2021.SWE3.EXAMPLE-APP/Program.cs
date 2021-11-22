@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WS2021.SWE3.EXAMPLE_APP.Model;
 using WS2021.SWE3.OR_Mapper;
+using WS2021.SWE3.OR_Mapper.CustomQuery;
 
 namespace WS2021.SWE3.EXAMPLE_APP
 {
@@ -17,6 +18,8 @@ namespace WS2021.SWE3.EXAMPLE_APP
         private static DbSetup dbSetup;
         public static void Main(string[] args)
         {
+            
+
             Customer customer = new Customer()
             {
                 Id = "1",
@@ -31,6 +34,7 @@ namespace WS2021.SWE3.EXAMPLE_APP
                        Name = "Buch 1",
                        Author = "Tes",
                        IBan = "123123d",
+                       Price = 20,
                        ReleaseDate = DateTime.Now,
                    }
                    
@@ -42,6 +46,7 @@ namespace WS2021.SWE3.EXAMPLE_APP
                 Name = "Book gekauft",
                 Author = "2222",
                 IBan = "123123d",
+                Price = 100,
                 ReleaseDate = DateTime.Now,
             };
             Book book3 = new()
@@ -50,6 +55,7 @@ namespace WS2021.SWE3.EXAMPLE_APP
                 Name = "Book 3",
                 Author = "2222",
                 IBan = "123123d",
+                Price = 100,
                 ReleaseDate = DateTime.Now,
             };
             customer.BorrowedBooks.First().BorrowedBooks = customer;
@@ -82,9 +88,16 @@ namespace WS2021.SWE3.EXAMPLE_APP
             Console.WriteLine($"{book1.Id} {book1.Name}");
             var book3Delete = dbSetup.BookRepository.Get("3");
             Console.WriteLine($"{book3Delete.Id} {book3Delete.Name}");
-            dbSetup.BookRepository.Delete(book3Delete);
-            dbSetup.BookRepository.Delete(book1);
+            //dbSetup.BookRepository.Delete(book3Delete);
+            // dbSetup.BookRepository.Delete(book1);
             //  CreateHostBuilder(args).Build().Run();
+
+            EntityRegistry entityRegistry = new EntityRegistry();
+            Book book = new Book() { Name = "Tes", Price = 2 };
+            var queryGroup1 = dbSetup.BookRepository.CreateQuery().Equals(() => book.Name, "asds").Or().LesserThan(() => book.Price, 2);
+            var queryGroup2 = dbSetup.BookRepository.CreateQuery().Like(() => book.IBan, "*ass").Or().LesserThan(() => book.Price, 2).And().In(() => book.Id, new() { "1", "2", "3" });
+            var queryGroup3 = dbSetup.BookRepository.CreateQuery().In(() => book.Id, new() { "2", "3" }).Or().LesserThan(() => book.Price, 20).And().Equals(() => book.Id, "1");
+            var bookList = dbSetup.BookRepository.Query(queryGroup3);
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

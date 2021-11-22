@@ -13,6 +13,7 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
         public string Id { get; set; }
         public string Name { get; set; }
         public string Author { get; set; }
+        public int Price { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string IBan { get; set; }
         [ForeignKey]

@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WS2021.SWE3.OR_Mapper.CustomQuery;
 using WS2021.SWE3.OR_Mapper.ModelEntities;
 
 namespace WS2021.SWE3.OR_Mapper
@@ -53,6 +54,16 @@ namespace WS2021.SWE3.OR_Mapper
         public void SetupForeignKeys()
         {
             _internalRepository.SetupForeignKeys();
+        }
+
+        public QueryAction CreateQuery()
+        {
+            return _internalRepository.CreateQuery();
+        }
+
+        public List<T> Query(QueryGroup queryGroup)
+        {
+            return _internalRepository.Query<T>(queryGroup);
         }
     }
 }
