@@ -147,5 +147,14 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             }
             return null;
         }
+
+        public ModelField GetFieldForPropertyInfo(PropertyInfo propertyInfo)
+        {
+            foreach (ModelField i in LocalFields)
+            {
+                if (i.Member == propertyInfo) { return i; }
+            }
+            return null;
+        }
     }
 }

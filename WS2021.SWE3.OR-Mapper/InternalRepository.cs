@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WS2021.SWE3.OR_Mapper.CustomQuery;
 using WS2021.SWE3.OR_Mapper.ModelEntities;
 
 namespace WS2021.SWE3.OR_Mapper
@@ -300,20 +301,25 @@ namespace WS2021.SWE3.OR_Mapper
             }
         }
 
-        private IDbDataParameter CreateParameterOfField(string paramName, object value, IDbCommand dbCommand, ModelField currentField)
+        private IDbDataParameter CreateParameterOfField(string paramName, object value, IDbCommand dbCommand)
         {
-            object realValue = currentField.ToColumnType(currentField.GetValue(value));
             var parameter = dbCommand.CreateParameter();
             parameter.ParameterName = paramName;
-            if (realValue == null)
+            if (value == null)
             {
                 parameter.Value = DBNull.Value;
             }
             else
             {
-                parameter.Value = realValue;
+                parameter.Value = value;
             }
             return parameter;
+        }
+
+        private IDbDataParameter CreateParameterOfField(string paramName, object value, IDbCommand dbCommand, ModelField currentField)
+        {
+            object realValue = currentField.ToColumnType(currentField.GetValue(value));
+            return CreateParameterOfField(paramName, realValue, dbCommand);
         }
 
         public object Get(object primaryKey)
@@ -412,6 +418,47 @@ namespace WS2021.SWE3.OR_Mapper
             param.ParameterName = ":fk";
             param.Value = field.Entity.PrimaryKey.GetValue(value);
             command.Parameters.Add(param);
+            IDataReader reader = command.ExecuteReader();
+            List<Dictionary<string, object>> objectsList = new();
+            Dictionary<string, object> columnValuePairs = null;
+            do
+            {
+                columnValuePairs = DataReaderToDictionary(reader, modelEntity);
+                if (columnValuePairs.Count > 0)
+                {
+                    objectsList.Add(columnValuePairs);
+                }
+            } while (columnValuePairs != null && columnValuePairs.Count > 0);
+            reader.Close();
+            foreach (Dictionary<string, object> columnValuePair in objectsList)
+            {
+                var obj = InitObject(listType, columnValuePair);
+                list.GetType().GetMethod("Add").Invoke(list, new object[] { obj });
+            }
+            reader.Close();
+            reader.Dispose();
+            command.Dispose();
+            return list;
+        }
+
+        public QueryAction<T> CreateQuery<T>()
+        {
+            return new QueryAction<T>(entityRegistry);
+        }
+
+        public List<T> Query<T>(QueryGroup<T> queryGroup)
+        {
+            List<T> list = new List<T>();
+            Type listType = typeof(T);
+            string whereClause = queryGroup.GetWhereClause();
+            var paramsWhere = queryGroup.GetWhereClauseParams();
+            IDbCommand command = Connection.CreateCommand();
+            ModelEntity entity = entityRegistry.GetModelEntity(listType);
+            command.CommandText = entity.GetSQLLocalFields() + " WHERE " + whereClause;
+            foreach(var para in paramsWhere)
+            {
+                command.Parameters.Add(CreateParameterOfField(para.Item1, para.Item2, command));
+            }
             IDataReader reader = command.ExecuteReader();
             List<Dictionary<string, object>> objectsList = new();
             Dictionary<string, object> columnValuePairs = null;

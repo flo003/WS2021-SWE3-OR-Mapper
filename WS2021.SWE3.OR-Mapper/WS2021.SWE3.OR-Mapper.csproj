@@ -5,8 +5,4 @@
     <RootNamespace>WS2021.SWE3.OR_Mapper</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="CustomQuery\" />
-  </ItemGroup>
-
 </Project>
