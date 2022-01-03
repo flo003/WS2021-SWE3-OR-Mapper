@@ -13,11 +13,20 @@ namespace WS2021.SWE3.OR_Mapper
     public class Repository<T>
     {
         private InternalRepository _internalRepository;
-        public Repository(IDbConnection dbConnection, Dictionary<Type, string> createTablePropertiesConversion = null)
+        /// <summary>
+        /// Creates a Repository of type T with a custom conversion table for the database types to c# types conversion
+        /// </summary>
+        /// <param name="dbConnection">Connection to database</param>
+        /// <param name="createTablePropertiesConversion">Conversion table for database types</param>
+        public Repository(IDbConnection dbConnection, Dictionary<Type, string> createTablePropertiesConversion)
         {
             _internalRepository = new InternalRepository(typeof(T), dbConnection, createTablePropertiesConversion);
         }
 
+        /// <summary>
+        /// Creates a Repository of type T with a standard conversion table for the db types to c# types conversion
+        /// </summary>
+        /// <param name="dbConnection">Connection to database</param>
         public Repository(IDbConnection dbConnection)
         {
             Dictionary<Type, string> createTablePropertiesConversion = new Dictionary<Type, string>()
@@ -32,35 +41,64 @@ namespace WS2021.SWE3.OR_Mapper
             _internalRepository = new InternalRepository(typeof(T), dbConnection, createTablePropertiesConversion);
         }
 
+        /// <summary>
+        /// Deletes entity
+        /// </summary>
+        /// <param name="value">Instance of entity type</param>
         public void Delete(T value)
         {
             _internalRepository.Delete(value);
         }
 
+        /// <summary>
+        /// Persists entity in database
+        /// </summary>
+        /// <param name="value">Instance of entity type</param>
         public void Save(T value)
         {
             _internalRepository.Save(value);
         }
 
+        /// <summary>
+        /// Gets instance by primary key from database
+        /// </summary>
+        /// <param name="primaryKey">Primary Key of entity type</param>
+        /// <returns>Instance of entity type</returns>
         public T Get(object primaryKey)
         {
             return (T)_internalRepository.Get(primaryKey);
         }
 
+        /// <summary>
+        /// Creates table in the database
+        /// </summary>
         public void SetupTable()
         {
             _internalRepository.SetupTable();
         }
+
+        /// <summary>
+        /// Creates foreign keys in the database
+        /// </summary>
         public void SetupForeignKeys()
         {
             _internalRepository.SetupForeignKeys();
         }
 
+        /// <summary>
+        /// Query for creating a custom query
+        /// </summary>
+        /// <returns>A query action (filter) of entity type</returns>
         public QueryAction<T> CreateQuery()
         {
             return _internalRepository.CreateQuery<T>();
         }
 
+        /// <summary>
+        /// Executes the custom query
+        /// </summary>
+        /// <param name="queryGroup">Custom query of entity type</param>
+        /// <returns></returns>
         public List<T> Query(QueryGroup<T> queryGroup)
         {
             return _internalRepository.Query<T>(queryGroup);

@@ -7,7 +7,7 @@ using WS2021.SWE3.OR_Mapper.ModelAttributes;
 namespace WS2021.SWE3.EXAMPLE_APP.Model
 {
     [Entity]
-    public class Person
+    public abstract class Person
     {
         [PrimaryKey]
         public string Id { get; set; }

@@ -9,9 +9,8 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
     [Entity]
     public class Employee : Person
     {
-        public string EmployeeId { get; set; }
         public int Rating { get; set; }
         [ForeignKey]
-        public List<Library> WorkPlaces { get; set; } = new List<Library>();
+        public Library WorkPlace { get; set; } = null;
     }
 }

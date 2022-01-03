@@ -9,7 +9,7 @@ namespace WS2021.SWE3.OR_Mapper
 {
     public class DbChache
     {
-        private Dictionary<Type, Dictionary<object, object>> _cache = new();
+        private static Dictionary<Type, Dictionary<object, object>> _cache = new();
         private EntityRegistry _entityRegistry;
         public DbChache(EntityRegistry entityRegistry)
         {
@@ -24,11 +24,20 @@ namespace WS2021.SWE3.OR_Mapper
                 _cache[value.GetType()][modelEntity.PrimaryKey.GetValue(value)] = value;
             }
             else
-            {
+            {   
                 _cache[value.GetType()] = new Dictionary<object, object>() { { modelEntity.PrimaryKey.GetValue(value), value } };
             }
-            
         }
+
+        public void RemoveValue(object value)
+        {
+            ModelEntity modelEntity = _entityRegistry.GetModelEntity(value);
+            if (_cache.ContainsKey(value.GetType()))
+            {
+                _cache[value.GetType()].Remove(modelEntity.PrimaryKey.GetValue(value));
+            }
+        }
+
         public object GetValue(Type type, object primaryKey)
         {
             if (_cache.ContainsKey(type) && _cache[type].ContainsKey(primaryKey))

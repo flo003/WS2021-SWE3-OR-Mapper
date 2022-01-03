@@ -69,13 +69,13 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             }
             if (IsForeignKey)
             {
-                return repository.InitObject(Type, value);
+                return repository.InitEntity(Type, value);
             }
             if (Type == typeof(bool))
             {
-                if (value is int) { return ((int)value != 0); }
-                if (value is short) { return ((short)value != 0); }
-                if (value is long) { return ((long)value != 0); }
+                if (value is int int1) { return (int1 != 0); }
+                if (value is short short1) { return (short1 != 0); }
+                if (value is long long1) { return (long1 != 0); }
             }
             if (Type == typeof(short)) { return Convert.ToInt16(value); }
             if (Type == typeof(int)) { return Convert.ToInt32(value); }
@@ -88,7 +88,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
 
         public object GetValue(object obj)
         {
-            if (Member is PropertyInfo) { return ((PropertyInfo)Member).GetValue(obj); }
+            if (Member is PropertyInfo info) { return info.GetValue(obj); }
 
             throw new NotSupportedException("Member type not supported.");
         }

@@ -98,7 +98,6 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
                     modelField.IsManyToMany = (!string.IsNullOrWhiteSpace(modelField.RemoteTableName));
                 }
             }
-
             EntityAttribute entityAttribute = modelField.Type.GetCustomAttribute(typeof(EntityAttribute)) as EntityAttribute;
             if (entityAttribute != null && entityAttribute is EntityAttribute)
             {

@@ -9,11 +9,13 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
     [Entity]
     public class Library
     {
+        [PrimaryKey]
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
-        [ForeignKey]
+        [ForeignKey(RemoteTableName = "BookInLibrary", RemoteTableColumnName = "rentbookid", ColumnName = "libraryId")]
         public List<Book> StoredBooks { get; set; } = new List<Book>();
-        [ForeignKey]
+        [ForeignKey(ColumnName = "WorkPlace")]
         public List<Employee> Employees { get; set; } = new List<Employee>();
     }
 }

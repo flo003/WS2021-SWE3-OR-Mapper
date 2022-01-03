@@ -16,8 +16,6 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
 
         private QueryAction<K> _queryAction;
         private ICustomQuery customQueryGroup;
-        private CustomQueries customQueries = new CustomQueries();
-        private int paramNumber = 1;
 
         private QueryWhereConnections _nextConnection = QueryWhereConnections.NONE;
 

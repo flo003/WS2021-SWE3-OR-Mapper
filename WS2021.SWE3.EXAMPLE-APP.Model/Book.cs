@@ -16,9 +16,12 @@ namespace WS2021.SWE3.EXAMPLE_APP.Model
         public int Price { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string IBan { get; set; }
-        [ForeignKey]
-        public Customer BorrowedBooks { get; set; } = null;
+        [ForeignKey(RemoteTableName = "BookBorrowedByCustomer", RemoteTableColumnName = "customerid", ColumnName = "borrowedbookid")]
+        public List<Customer> CustomerBorrowed { get; set; } = new List<Customer>();
         [ForeignKey(RemoteTableName = "BookOwnedByCustomer", RemoteTableColumnName = "customerid", ColumnName = "broughtbookid")]
-        public List<Customer> OwnedBy { get; set; } = new();
+        public List<Customer> OwnedBy { get; set; } = new List<Customer>();
+
+        [ForeignKey(RemoteTableName = "BookInLibrary", RemoteTableColumnName = "libraryId", ColumnName = "rentbookid")]
+        public List<Library> InLibrary { get; set; } = new List<Library>();
     }
 }

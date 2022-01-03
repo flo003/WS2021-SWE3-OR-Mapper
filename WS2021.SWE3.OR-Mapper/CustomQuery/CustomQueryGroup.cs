@@ -60,7 +60,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
                 string where2 = _customQuery2.WhereClause;
                 if (where1 != "" && where2 != "")
                 {
-                    return $" ( {where1} {parseQuery_whereConnections(_whereConnections)} {where2} ) ";
+                    return $" ( {where1} {parseQueryWhereConnections(_whereConnections)} {where2} ) ";
                 }
                 else if (where1 != "")
                 {
@@ -74,7 +74,7 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
             }
         }
 
-        private string parseQuery_whereConnections(QueryWhereConnections _whereConnections)
+        private string parseQueryWhereConnections(QueryWhereConnections _whereConnections)
         {
             string result = " AND ";
             switch (_whereConnections)
