@@ -66,7 +66,7 @@ namespace WS2021.SWE3.OR_Mapper
         /// <returns>Instance of entity type</returns>
         public T Get(object primaryKey)
         {
-            return (T)_internalRepository.Get(primaryKey);
+            return (T)_internalRepository.GetEntityByPrimaryKey(primaryKey);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace WS2021.SWE3.OR_Mapper
         }
 
         /// <summary>
-        /// Query for creating a custom query
+        /// Query for creating a custom query for a list of entity type
         /// </summary>
         /// <returns>A query action (filter) of entity type</returns>
         public QueryAction<T> CreateQuery()
@@ -95,11 +95,11 @@ namespace WS2021.SWE3.OR_Mapper
         }
 
         /// <summary>
-        /// Executes the custom query
+        /// Executes a custom query for a list entity type
         /// </summary>
         /// <param name="queryGroup">Custom query of entity type</param>
         /// <returns></returns>
-        public List<T> Query(QueryGroup<T> queryGroup)
+        public IEnumerable<T> Query(QueryGroup<T> queryGroup)
         {
             return _internalRepository.Query<T>(queryGroup);
         }

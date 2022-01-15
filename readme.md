@@ -30,7 +30,7 @@ public class Book
 The available attributes are:
 + Entity - required for classes, marks it as an entity
 + Field - optional for properties to configure additional information
-+ Ignore  - optional for properties to make the Or Mapper ignore the property
++ Ignore  - optional for properties to make the OR Mapper ignore the property
 + ForeignKey - required for properties representing a foreign key
 + PrimaryKey - required for every entity on one property is the primary key
 
@@ -45,10 +45,10 @@ It is done with a instance of IDBConnection and a optional dictionary which repr
 The repository is created through specifing the type of the entity the repository should manage.
 Afterwards the repository is created an can be used.
 
-The Or Mapper can create the database from the model. This feature can be used by calling the methods.
+The OR Mapper can create the database from the model. This feature can be used by calling the methods.
 ```csharp
 bookRepository.SetupTable();
 bookRepository.SetupForeignKeys();
 ```
 
-For further examples on how to use the Or Mapper, please look at the Unit Tests in the WS2021.SWE.OR-Mapper.Tests project.
+For further examples on how to use the OR Mapper, please look at the Unit Tests in the WS2021.SWE.OR-Mapper.Tests project.

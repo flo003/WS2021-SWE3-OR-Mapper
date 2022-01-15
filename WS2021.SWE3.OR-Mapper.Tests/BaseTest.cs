@@ -48,7 +48,7 @@ namespace WS2021.SWE3.OR_Mapper.Tests
             }
             catch (PostgresException exception)
             {
-                Console.WriteLine($"Setup Tables exception: {exception}");
+                 Console.WriteLine($"Setup Tables exception: {exception}");
             }
         }
 

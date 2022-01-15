@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using WS2021.SWE3.OR_Mapper.Cache;
 using WS2021.SWE3.OR_Mapper.CustomQuery;
+using WS2021.SWE3.OR_Mapper.Exceptions;
 using WS2021.SWE3.OR_Mapper.ModelEntities;
 
 namespace WS2021.SWE3.OR_Mapper
@@ -14,37 +13,44 @@ namespace WS2021.SWE3.OR_Mapper
     {
         private Type _repositoryType;
         private EntityRegistry _entityRegistry = new EntityRegistry();
-        private DbChache _dbChache;
+        private IDbCache _dbCache;
 
-        public InternalRepository(Type type, IDbConnection dbConnection, Dictionary<Type, string> createTablePropertiesConversion = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type">Type of entity which should be managed by the repository</param>
+        /// <param name="dbConnection">Established Connection to a database</param>
+        /// <param name="createTablePropertiesConversion">Conversion table for database types</param>
+        /// <param name="dbCache">Cache used in repository</param>
+        public InternalRepository(Type type, IDbConnection dbConnection, Dictionary<Type, string> createTablePropertiesConversion = null, IDbCache dbCache = null)
         {
             _repositoryType = type;
             Connection = dbConnection;
             modelEntity = _entityRegistry.GetModelEntity(_repositoryType);
+            _dbCache = new DbCache(_entityRegistry);
             if (createTablePropertiesConversion != null)
             {
                 _createTablePropertiesConversion = createTablePropertiesConversion;
             }
-            _dbChache = new DbChache(_entityRegistry);
-        }
-
-        public InternalRepository(Type type, Dictionary<Type, string> createTablePropertiesConversion = null)
-        {
-            _repositoryType = type;
-            modelEntity = _entityRegistry.GetModelEntity(_repositoryType);
-            if (createTablePropertiesConversion != null)
+            if (dbCache != null)
             {
-                _createTablePropertiesConversion = createTablePropertiesConversion;
+                _dbCache = dbCache;
             }
         }
 
         private ModelEntity modelEntity;
         public IDbConnection Connection { get; set; }
 
+        /// <summary>
+        /// Creation of Tables if they exists
+        /// </summary>
         public void SetupTable()
         {
             CreateTable(modelEntity);
         }
+        /// <summary>
+        /// Creation of Foreign Keys if they exists
+        /// </summary>
         public void SetupForeignKeys()
         {
             CreateForeignKeys(modelEntity);
@@ -59,6 +65,11 @@ namespace WS2021.SWE3.OR_Mapper
             }
         }
 
+        /// <summary>
+        /// Get DB Name of Column Type responding to the modelField
+        /// </summary>
+        /// <param name="modelField"></param>
+        /// <returns></returns>
         private string GetColumnType(ModelField modelField)
         {
             if (CreateTablePropertiesConversion.ContainsKey(modelField?.ColumnType ?? modelField.Type))
@@ -71,6 +82,12 @@ namespace WS2021.SWE3.OR_Mapper
             }
         }
 
+        /// <summary>
+        /// Creates table in database accessed trough the connection.
+        /// This method does not create any foreign keys.
+        /// </summary>
+        /// <param name="entity">Creates table for this entity</param>
+        /// <exception cref="DbTypeConversionNotFound">If type of a filed of the entity cannot be found in the conversion table</exception>
         private void CreateTable(ModelEntity entity)
         {
             IDbCommand command = Connection.CreateCommand();
@@ -93,7 +110,7 @@ namespace WS2021.SWE3.OR_Mapper
                     ModelEntity modelEntityForeign = _entityRegistry.GetModelEntity(entity.LocalFields[i].Type);
                     if (!CreateTablePropertiesConversion.ContainsKey(modelEntityForeign.PrimaryKey.ColumnType))
                     {
-                        throw new NotImplementedException(); // throw better named exceptions
+                        throw new DbTypeConversionNotFound($"Error with converting db type: not found in conversion table - {modelEntityForeign.PrimaryKey.ColumnType}");
                     }
                     create += CreateTablePropertiesConversion[modelEntityForeign.PrimaryKey.ColumnType];
                 }
@@ -129,6 +146,11 @@ namespace WS2021.SWE3.OR_Mapper
             }
         }
 
+        /// <summary>
+        /// Creates foreign keys in database accessed trough the connection.
+        /// This method does not create any tables.
+        /// </summary>
+        /// <param name="entity">Creates foreign keys for this entity</param>
         private void CreateForeignKeys(ModelEntity entity)
         {
             for (int i = 0; i < entity.LocalFields.Length; i++)
@@ -137,6 +159,12 @@ namespace WS2021.SWE3.OR_Mapper
                 {
                     ModelField modelFieldForeign = entity.LocalFields[i];
                     ModelEntity modelEntityForeign = _entityRegistry.GetModelEntity(modelFieldForeign.Type);
+
+                    IDbCommand dropForeignKeys = Connection.CreateCommand();
+                    dropForeignKeys.CommandText += $"ALTER TABLE {modelEntity.TableName} DROP CONSTRAINT IF EXISTS FK_{modelEntity.TableName}_{modelEntityForeign.TableName}";
+                    dropForeignKeys.ExecuteNonQuery();
+                    dropForeignKeys.Dispose();
+
                     IDbCommand createForeignKeys = Connection.CreateCommand();
                     createForeignKeys.CommandText += $"ALTER TABLE {modelEntity.TableName} ADD CONSTRAINT FK_{modelEntity.TableName}_{modelEntityForeign.TableName} FOREIGN KEY ({modelFieldForeign.ColumnName}) REFERENCES {modelEntityForeign.TableName}({modelEntityForeign.PrimaryKey.ColumnName})  ON UPDATE CASCADE ON DELETE CASCADE ";
                     createForeignKeys.ExecuteNonQuery();
@@ -148,6 +176,11 @@ namespace WS2021.SWE3.OR_Mapper
                 ModelField modelFieldForeignMany = entity.ForeignFields[i];
                 if (modelFieldForeignMany.IsManyToMany)
                 {
+                    IDbCommand dropForeignKeys = Connection.CreateCommand();
+                    dropForeignKeys.CommandText += $"ALTER TABLE {modelFieldForeignMany.RemoteTableName} DROP CONSTRAINT IF EXISTS FK_{modelFieldForeignMany.RemoteTableName}_{modelEntity.TableName}";
+                    dropForeignKeys.ExecuteNonQuery();
+                    dropForeignKeys.Dispose();
+
                     IDbCommand createForeignKeys = Connection.CreateCommand();
                     createForeignKeys.CommandText += $"ALTER TABLE {modelFieldForeignMany.RemoteTableName} ADD CONSTRAINT FK_{modelFieldForeignMany.RemoteTableName}_{modelEntity.TableName} FOREIGN KEY ({modelFieldForeignMany.ColumnName}) REFERENCES {modelEntity.TableName}({entity.PrimaryKey.ColumnName}) ON UPDATE CASCADE ON DELETE CASCADE ";
                     createForeignKeys.ExecuteNonQuery();
@@ -167,7 +200,7 @@ namespace WS2021.SWE3.OR_Mapper
                 }
             }
             DeleteRowByPrimaryKey(value, entity);
-            _dbChache.RemoveValue(value);
+            _dbCache.RemoveValue(value);
         }
 
 
@@ -202,7 +235,7 @@ namespace WS2021.SWE3.OR_Mapper
             {
                 SaveForeignFields(value, entity.ForeignFields[i]);
             }
-            _dbChache.StoreValue(value);
+            _dbCache.StoreValue(value);
         }
 
         private void SaveLocalFields(object value, ModelEntity entity)
@@ -279,7 +312,7 @@ namespace WS2021.SWE3.OR_Mapper
 
             if (modelField.GetValue(obj) != null)
             {
-                IEnumerable fieldItemList = (IEnumerable)modelField.GetValue(obj);
+                IEnumerable fieldItemList = (IEnumerable) modelField.GetValue(obj);
                 foreach (object listitem in fieldItemList)
                 {
                     remoteField.SetValue(listitem, obj);
@@ -351,15 +384,15 @@ namespace WS2021.SWE3.OR_Mapper
             return CreateParameterOfField(paramName, realValue, dbCommand);
         }
 
-        public object Get(object primaryKey)
+        public object GetEntityByPrimaryKey(object primaryKey)
         {
-            return InitEntity(_repositoryType, primaryKey);
+            return InitEntityFromDb(_repositoryType, primaryKey);
         }
 
-        public object InitEntity(Type type, object primaryKey)
+        public object InitEntityFromDb(Type type, object primaryKey)
         {
-            object resultValue = SearchCache(type, primaryKey);
-            if(resultValue != null) { return resultValue; }
+            object resultValue = _dbCache.GetValue(type, primaryKey);
+            if (resultValue != null) { return resultValue; }
             IDbCommand command = Connection.CreateCommand();
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(type);
             command.CommandText = modelEntity.GetSQLLocalFields() + " WHERE " + modelEntity.PrimaryKey.ColumnName + " = :pk";
@@ -372,7 +405,7 @@ namespace WS2021.SWE3.OR_Mapper
             readerData.Close();
             if (columnValuePairs != null && columnValuePairs.Count > 0)
             {
-                resultValue = InitEntity(type, columnValuePairs);
+                resultValue = InitEntityFromDictionary(type, columnValuePairs);
             }
             command.Dispose();
             
@@ -392,23 +425,17 @@ namespace WS2021.SWE3.OR_Mapper
             return columnValuePairs;
         }
 
-        internal object SearchCache(Type type, object primaryKey)
-        {
-            return _dbChache.GetValue(type, primaryKey);
-         
-        }
-
-        public object InitEntity(Type type, Dictionary<string, object> columnValuePairs)
+        public object InitEntityFromDictionary(Type type, Dictionary<string, object> columnValuePairs)
         {
             if(columnValuePairs == null || columnValuePairs.Count == 0) { return null; } 
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(type);
             object primaryKey = modelEntity.PrimaryKey.ToFieldType(columnValuePairs[modelEntity.PrimaryKey.ColumnName], this);
-            object resultValue = SearchCache(type, primaryKey);
+            object resultValue = _dbCache.GetValue(type, primaryKey);
             if (resultValue == null)
             {
                 resultValue = Activator.CreateInstance(type);
                 modelEntity.PrimaryKey.SetValue(resultValue, primaryKey);
-                _dbChache.StoreValue(resultValue);
+                _dbCache.StoreValue(resultValue);
             }
             foreach (ModelField inField in modelEntity.LocalFields)
             {
@@ -416,26 +443,26 @@ namespace WS2021.SWE3.OR_Mapper
             }
             foreach (ModelField modelField in modelEntity.ForeignFields)
             {
-                modelField.SetValue(resultValue, FillList(modelField, Activator.CreateInstance(modelField.Type), resultValue));
+                modelField.SetValue(resultValue, InitForeignField(modelField, Activator.CreateInstance(modelField.Type), resultValue));
             }
-            _dbChache.StoreValue(resultValue);
+            _dbCache.StoreValue(resultValue);
             return resultValue;
         }
 
-        private object FillList(ModelField field, object list, object value)
+        private object InitForeignField(ModelField field, object list, object value)
         {
             Type listType = field.Type.GenericTypeArguments[0];
-            List<Dictionary<string, object>> objectsList = GetList(field, value, listType);
+            List<Dictionary<string, object>> objectsList = GetListOfField(field, value, listType);
             foreach (Dictionary<string, object> columnValuePair in objectsList)
             {
-                var obj = InitEntity(listType, columnValuePair);
+                var obj = InitEntityFromDictionary(listType, columnValuePair);
                 list.GetType().GetMethod("Add").Invoke(list, new object[] { obj });
             }
             
             return list;
         }
 
-        private List<Dictionary<string, object>> GetList(ModelField field, object value, Type listType)
+        private List<Dictionary<string, object>> GetListOfField(ModelField field, object value, Type listType)
         {
             List<Dictionary<string, object>> objectsList = new List<Dictionary<string, object>>();
             ModelEntity modelEntity = _entityRegistry.GetModelEntity(listType);
@@ -469,12 +496,23 @@ namespace WS2021.SWE3.OR_Mapper
             return objectsList;
         }
 
+        /// <summary>
+        /// Creates a custom query for a list of entity type
+        /// </summary>
+        /// <typeparam name="T">Type of entity to filter</typeparam>
+        /// <returns>A query action to add a filter</returns>
         public QueryAction<T> CreateQuery<T>()
         {
             return new QueryAction<T>(_entityRegistry);
         }
 
-        public List<T> Query<T>(QueryGroup<T> queryGroup)
+        /// <summary>
+        /// Executes a custom query for a list entity type
+        /// </summary>
+        /// <typeparam name="T">Type of entity to filter</typeparam>
+        /// <param name="queryGroup">Customer query to execute</param>
+        /// <returns>A list of entities filtered by the query</returns>
+        public IEnumerable<T> Query<T>(QueryGroup<T> queryGroup)
         {
             List<T> list = new List<T>();
             Type listType = typeof(T);
@@ -501,7 +539,7 @@ namespace WS2021.SWE3.OR_Mapper
             reader.Close();
             foreach (Dictionary<string, object> columnValuePair in objectsList)
             {
-                var obj = InitEntity(listType, columnValuePair);
+                var obj = InitEntityFromDictionary(listType, columnValuePair);
                 list.GetType().GetMethod("Add").Invoke(list, new object[] { obj });
             }
             reader.Close();

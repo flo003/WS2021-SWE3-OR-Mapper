@@ -23,15 +23,6 @@ namespace WS2021.SWE3.OR_Mapper.CustomQuery
         private int paramNumber = 1;
         private QueryGroup<K> _queryGroup;
 
-        private object ParseValueFromExpression(Expression body)
-        {
-            var mex = body as MemberExpression;
-            var fex = mex.Expression as MemberExpression;
-            var cex = fex.Expression as ConstantExpression;
-            var fld = fex.Member as FieldInfo;
-            return fld.GetValue(cex.Value);
-        }
-
         public QueryGroup<K> Equals<T>(Expression<Func<K, T>> property, T value)
         {
             var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;

@@ -21,19 +21,22 @@ namespace WS2021.SWE3.EXAMPLE_APP
             customQueryTest.SetupRepositories();
             customQueryTest.SetupTables();
 
-
+            Console.WriteLine("Basix CRUD Tests with books and customers");
             basicCrudTest.SaveBookTest();
             basicCrudTest.UpdateCustomerTest();
             basicCrudTest.DeleteCustomerTest();
 
+            Console.WriteLine("1 to N CRUD Tests with employees");
             onetoNCrudTest.SaveEmployeeTest();
             onetoNCrudTest.UpdateEmployeeTest();
             onetoNCrudTest.DeleteEmployeeTest();
 
+            Console.WriteLine("N to M CRUD Tests with customers");
             ntoMCrudTest.SaveCustomerTest();
             ntoMCrudTest.UpdateCustomerTest();
             ntoMCrudTest.DeletingCustomerTest();
 
+            Console.WriteLine("Customer Query Tests");
             customQueryTest.QueryEmployeesTest();
             customQueryTest.QueryBooksTest();
         }

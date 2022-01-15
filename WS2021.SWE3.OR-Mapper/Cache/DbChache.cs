@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using WS2021.SWE3.OR_Mapper.ModelEntities;
 
-namespace WS2021.SWE3.OR_Mapper
+namespace WS2021.SWE3.OR_Mapper.Cache
 {
-    public class DbChache
+    public class DbCache : IDbCache
     {
         private static Dictionary<Type, Dictionary<object, object>> _cache = new();
         private EntityRegistry _entityRegistry;
-        public DbChache(EntityRegistry entityRegistry)
+        public DbCache(EntityRegistry entityRegistry)
         {
             _entityRegistry = entityRegistry;
         }

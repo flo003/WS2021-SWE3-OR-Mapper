@@ -69,7 +69,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             }
             if (IsForeignKey)
             {
-                return repository.InitEntity(Type, value);
+                return repository.InitEntityFromDb(Type, value);
             }
             if (Type == typeof(bool))
             {
