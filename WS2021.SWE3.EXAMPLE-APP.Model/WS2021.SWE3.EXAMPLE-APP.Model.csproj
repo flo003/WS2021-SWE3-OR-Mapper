@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>WS2021.SWE3.EXAMPLE_APP.Model</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WS2021.SWE3.OR-Mapper\WS2021.SWE3.OR-Mapper.csproj" />
+  </ItemGroup>
+
+</Project>

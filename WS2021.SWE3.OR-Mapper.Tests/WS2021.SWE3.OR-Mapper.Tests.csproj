@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>WS2021.SWE3.OR_Mapper.Tests</RootNamespace>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="Npgsql" Version="6.0.2" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <PackageReference Include="coverlet.collector" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WS2021.SWE3.EXAMPLE-APP.Model\WS2021.SWE3.EXAMPLE-APP.Model.csproj" />
+    <ProjectReference Include="..\WS2021.SWE3.OR-Mapper\WS2021.SWE3.OR-Mapper.csproj" />
+  </ItemGroup>
+
+</Project>
