@@ -10,7 +10,12 @@ using WS2021.SWE3.OR_Mapper.ModelEntities;
 
 namespace WS2021.SWE3.OR_Mapper
 {
-    public class Repository<T>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T">Type of Entity managed by the repository</typeparam>
+    /// <typeparam name="P">Type of the primary key of the entity</typeparam>
+    public class Repository<T, P>
     {
         private InternalRepository _internalRepository;
         /// <summary>
@@ -64,7 +69,7 @@ namespace WS2021.SWE3.OR_Mapper
         /// </summary>
         /// <param name="primaryKey">Primary Key of entity type</param>
         /// <returns>Instance of entity type</returns>
-        public T Get(object primaryKey)
+        public T Get(P primaryKey)
         {
             return (T)_internalRepository.GetEntityByPrimaryKey(primaryKey);
         }

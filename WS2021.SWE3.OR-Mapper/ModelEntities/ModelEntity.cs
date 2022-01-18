@@ -52,6 +52,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             Fields = fields.ToArray();
             LocalFields = Fields.Where((field) => field.IsForeignField == false).ToArray();
             ForeignFields = Fields.Where((field) => field.IsForeignField == true).ToArray();
+            DependencyFields = Fields.Where((field) => field.IsForeignField == true || field.IsForeignKey == true).ToArray();
         }
 
         private ModelField CreateModelField(PropertyInfo propertyInfo)
@@ -63,7 +64,6 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             {
                 return null;
             }
-
             FieldAttribute fieldAttribute = modelField.Member.GetCustomAttribute(typeof(FieldAttribute)) as FieldAttribute;
             modelField.IsNullable = true; // default nullable
             if (fieldAttribute != null && fieldAttribute is FieldAttribute)
@@ -111,6 +111,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
         public ModelField[] Fields { get; private set; }
         public ModelField[] ForeignFields { get; private set; }
         public ModelField[] LocalFields { get; private set; }
+        public ModelField[] DependencyFields { get; private set; }
         public ModelField PrimaryKey { get; private set; }
         public string GetSQLLocalFields(string prefix = null)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,30 @@ namespace WS2021.SWE3.OR_Mapper.Cache
             if (_cache.ContainsKey(value.GetType()))
             {
                 _cache[value.GetType()].Remove(modelEntity.PrimaryKey.GetValue(value));
+            }
+        }
+
+        public void RemoveValueWithDependencies(object value)
+        {
+            ModelEntity modelEntity = _entityRegistry.GetModelEntity(value);
+            if (_cache.ContainsKey(value.GetType()))
+            {
+                _cache[value.GetType()].Remove(modelEntity.PrimaryKey.GetValue(value));
+                foreach (ModelField modelField in modelEntity.DependencyFields)
+                {
+                    if (modelField.IsForeignField)
+                    {
+                        IEnumerable list = (IEnumerable)modelField.GetValue(value);
+                        foreach (object listObj in list)
+                        {
+                            RemoveValue(listObj);
+                        }
+                    }
+                    else
+                    {
+                        RemoveValue(modelField.GetValue(value));
+                    }
+                }
             }
         }
 

@@ -61,7 +61,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             return value;
         }
 
-        public object ToFieldType(object value, InternalRepository repository)
+        public object ToFieldType(object value, IEntityInitializer entityInitializer)
         {
             if (value == DBNull.Value)
             {
@@ -69,7 +69,7 @@ namespace WS2021.SWE3.OR_Mapper.ModelEntities
             }
             if (IsForeignKey)
             {
-                return repository.InitEntityFromDb(Type, value);
+                return entityInitializer.InitEntity(Type, value);
             }
             if (Type == typeof(bool))
             {

@@ -11,17 +11,19 @@ namespace WS2021.SWE3.OR_Mapper.Tests
 {
     public abstract class BaseTest
     {
-        private Repository<Book> _bookRepository;
-        private Repository<Customer> _customerRepository;
-        private Repository<Library> _libraryRepository;
-        private Repository<Employee> _employeeRepository;
         private string _connectionString = "Host=localhost;Username=postgres;Password=postgres;Database=postgres";
+
+        private Repository<Book, string> _bookRepository;
+        private Repository<Customer, string> _customerRepository;
+        private Repository<Library, string> _libraryRepository;
+        private Repository<Employee, string> _employeeRepository;
+
         private IDbConnection _databaseConnection;
 
-        protected Repository<Book> BookRepository => _bookRepository;
-        protected Repository<Library> LibraryRepository => _libraryRepository;
-        protected Repository<Employee> EmployeeRepository => _employeeRepository;
-        protected Repository<Customer> CustomerRepository => _customerRepository;
+        protected Repository<Book, string> BookRepository => _bookRepository;
+        protected Repository<Library, string> LibraryRepository => _libraryRepository;
+        protected Repository<Employee, string> EmployeeRepository => _employeeRepository;
+        protected Repository<Customer, string> CustomerRepository => _customerRepository;
 
         public void SetupRepositories()
         {

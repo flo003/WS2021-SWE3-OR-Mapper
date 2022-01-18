@@ -9,7 +9,10 @@ using WS2021.SWE3.OR_Mapper.ModelEntities;
 
 namespace WS2021.SWE3.OR_Mapper
 {
-    class InternalRepository
+    /// <summary>
+    /// 
+    /// </summary>
+    class InternalRepository : IEntityInitializer
     {
         private Type _repositoryType;
         private EntityRegistry _entityRegistry = new EntityRegistry();
@@ -200,7 +203,7 @@ namespace WS2021.SWE3.OR_Mapper
                 }
             }
             DeleteRowByPrimaryKey(value, entity);
-            _dbCache.RemoveValue(value);
+            _dbCache.RemoveValueWithDependencies(value);
         }
 
 
@@ -227,18 +230,21 @@ namespace WS2021.SWE3.OR_Mapper
             command.Dispose();
         }
 
-        public void Save(object value)
+        public void Save(object value, ModelEntity parentEntity = null)
         {
             ModelEntity entity = _entityRegistry.GetModelEntity(value);
-            SaveLocalFields(value, entity);
+            SaveLocalFields(value, entity, parentEntity);
             for (int i = 0; i < entity.ForeignFields.Length; i++)
             {
-                SaveForeignFields(value, entity.ForeignFields[i]);
+                if(entity.ForeignFields[i].Type != parentEntity?.Type)
+                {
+                    SaveForeignFields(value, entity.ForeignFields[i], parentEntity);
+                }
             }
             _dbCache.StoreValue(value);
         }
 
-        private void SaveLocalFields(object value, ModelEntity entity)
+        private void SaveLocalFields(object value, ModelEntity entity, ModelEntity parentEntity = null)
         {
             IDbCommand cmd = Connection.CreateCommand();
             cmd.CommandText = ("INSERT INTO " + entity.TableName + " (");
@@ -248,9 +254,9 @@ namespace WS2021.SWE3.OR_Mapper
             bool first = true;
             for (int i = 0; i < entity.LocalFields.Length; i++)
             {
-                if (entity.LocalFields[i].IsForeignKey && entity.LocalFields[i].GetValue(value) != null)
+                if (entity.LocalFields[i].IsForeignKey && entity.LocalFields[i].GetValue(value) != null && entity.LocalFields[i].Type != parentEntity?.Type)
                 {
-                    Save(entity.LocalFields[i].GetValue(value));
+                    Save(entity.LocalFields[i].GetValue(value), entity);
                 }
                 if (i > 0) { cmd.CommandText += ", "; insert += ", "; }
                 cmd.CommandText += entity.LocalFields[i].ColumnName;
@@ -271,15 +277,49 @@ namespace WS2021.SWE3.OR_Mapper
             cmd.Dispose();
         }
 
-        void SaveForeignFields(object obj, ModelField modelField)
+        //private void SaveLocalFields(object value, ModelEntity entity)
+        //{
+        //    IDbCommand cmd = Connection.CreateCommand();
+        //    cmd.CommandText = ("INSERT INTO " + entity.TableName + " (");
+        //    string update = "ON CONFLICT (" + entity.PrimaryKey.ColumnName + ") DO UPDATE SET ";
+        //    string insert = "";
+        //    IDataParameter parameter;
+        //    bool first = true;
+        //    for (int i = 0; i < entity.LocalFields.Length; i++)
+        //    {
+        //        if (entity.LocalFields[i].IsForeignKey && entity.LocalFields[i].GetValue(value) != null)
+        //        {
+        //            Save(entity.LocalFields[i].GetValue(value));
+        //        }
+        //        if (i > 0) { cmd.CommandText += ", "; insert += ", "; }
+        //        cmd.CommandText += entity.LocalFields[i].ColumnName;
+        //        insert += ($":v{i}");
+        //        parameter = CreateParameterOfField(($":v{i}"), value, cmd, entity.LocalFields[i]);
+        //        cmd.Parameters.Add(parameter);
+        //        if (!entity.LocalFields[i].IsPrimaryKey)
+        //        {
+        //            if (first) { first = false; } else { update += ", "; }
+        //            update += (entity.LocalFields[i].ColumnName + " = " + ($":w{i}"));
+
+        //            parameter = CreateParameterOfField(($":w{i}"), value, cmd, entity.LocalFields[i]);
+        //            cmd.Parameters.Add(parameter);
+        //        }
+        //    }
+        //    cmd.CommandText += ($") VALUES ({insert}) {update}");
+        //    cmd.ExecuteNonQuery();
+        //    cmd.Dispose();
+        //}
+
+        void SaveForeignFields(object obj, ModelField modelField, ModelEntity parentEntity = null)
         {
 
             if(!modelField.IsForeignField) return;
             if(modelField.GetValue(obj) == null) return;
-
+            
             Type innerType = modelField.Type.GetGenericArguments()[0];
             ModelEntity innerEntity = _entityRegistry.GetModelEntity(innerType);
             object primaryKey = modelField.Entity.PrimaryKey.ToColumnType(modelField.Entity.PrimaryKey.GetValue(obj));
+            if (parentEntity != null && parentEntity.Type == innerEntity.Type) return;
             if (modelField.IsManyToMany)
             {
                 SaveManyToManyRelation(obj, modelField, innerEntity, primaryKey);
@@ -546,6 +586,11 @@ namespace WS2021.SWE3.OR_Mapper
             reader.Dispose();
             command.Dispose();
             return list;
+        }
+
+        public object InitEntity(Type type, object primaryKey)
+        {
+            return InitEntityFromDb(type, primaryKey);
         }
     }
 }

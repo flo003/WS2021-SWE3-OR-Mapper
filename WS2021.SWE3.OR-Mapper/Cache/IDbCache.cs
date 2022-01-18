@@ -10,6 +10,7 @@ namespace WS2021.SWE3.OR_Mapper.Cache
     {
         public void StoreValue(object value);
         public void RemoveValue(object value);
+        public void RemoveValueWithDependencies(object value);
         public object GetValue(Type type, object primaryKey);
     }
 }

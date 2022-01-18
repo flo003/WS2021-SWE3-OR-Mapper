@@ -1,15 +1,25 @@
 # WS2021 SWE3 OR Mapper
 
-A object relationship mapper written in c#.
+A object relationship mapper written in c# which was tested with the PostgreSql database.
+
+## Setup Demo
+
+For the examples provided in the project the following requirments are needed:
+
+- Running PostgreSql database
+  - On localhost with username postgres and password postgres
+  - The connection string used in examples can be found in the BaseTest class
+  - A docker-compose is provided for easy startup
 
 ## Features
 
 + Managing Entities (Save, Update, Delete)
 + Quering Entities
-+ Custom Query support per Entitiy
++ Custom Query support per Entitiy Lists
 + Uses Repository pattern
 + Annotation based
 + Automatic Table generation
++ Only one field primary keys supported
 
 ## Usage
 

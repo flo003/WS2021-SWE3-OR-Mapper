@@ -24,12 +24,15 @@ namespace WS2021.SWE3.OR_Mapper.Tests
         [Test]
         public void SaveBookTest()
         {
-            Book bookExpect = GenereateBook("3");
+            Console.WriteLine($"Save Book Test start");
+            Book bookExpect = GenereateBook("3", price: 42);
+            Console.WriteLine($"Save Book with id {bookExpect.Id} and price {bookExpect.Price}");
             BookRepository.Save(bookExpect);
             var bookResult = BookRepository.Get("3");
             Assert.AreEqual(bookExpect.Name, bookResult.Name);
             Assert.AreEqual(bookExpect.Price, bookResult.Price);
             Assert.AreEqual(bookExpect.ReleaseDate, bookResult.ReleaseDate);
+            Console.WriteLine($"Get Book from Db with id {bookResult.Id}, it has price {bookResult.Price}");
         }
 
         /// <summary>
@@ -38,13 +41,17 @@ namespace WS2021.SWE3.OR_Mapper.Tests
         [Test]
         public void DeleteCustomerTest()
         {
-            Customer customerExpect = GenereateCustomer("8");
+            Console.WriteLine($"Delete Customer start");
+            Customer customerExpect = GenereateCustomer("8", firstname: "FFS", address: "Herns");
             CustomerRepository.Save(customerExpect);
             var customerResult = CustomerRepository.Get("8");
+            Console.WriteLine($"Get Customer from Db with id {customerResult.Id} and has firstname {customerResult.Firstname}");
             Assert.AreEqual(customerExpect.Firstname, customerResult.Firstname);
             Assert.AreEqual(customerExpect.Address, customerResult.Address);
             CustomerRepository.Delete(customerResult);
+            Console.WriteLine($"Delete Customer from Db with id {customerResult.Id}");
             var customerResult2 = CustomerRepository.Get("8");
+            Console.WriteLine($"Get Customer from Db with id {customerResult.Id}: {customerResult2}");
             Assert.IsNull(customerResult2);
         }
 
@@ -54,25 +61,28 @@ namespace WS2021.SWE3.OR_Mapper.Tests
         [Test]
         public void UpdateCustomerTest()
         {
-            Customer customerExpect = GenereateCustomer("10", firstname: "Go");
+            Console.WriteLine($"Update customer start");
+            Customer customerExpect = GenereateCustomer("10", firstname: "Go", address: "Test");
             CustomerRepository.Save(customerExpect);
             var customerResult = CustomerRepository.Get("10");
             Assert.AreEqual(customerExpect.Firstname, customerResult.Firstname);
             Assert.AreEqual(customerExpect.Address, customerResult.Address);
-
+            Console.WriteLine($"Get Customer from Db with id {customerResult.Id}: {customerResult.Firstname}");
             customerResult.Firstname = "GG";
 
             CustomerRepository.Save(customerResult);
+            Console.WriteLine($"Save Customer with id {customerResult.Id} and changed firstname {customerResult.Firstname}");
             var customerResult2 = CustomerRepository.Get("10");
             Assert.AreEqual(customerResult.Firstname, customerResult2.Firstname);
             Assert.AreEqual(customerResult.Address, customerResult2.Address);
             Assert.AreEqual(customerExpect.Address, customerResult2.Address);
+            Console.WriteLine($"Get Customer from Db with id {customerResult2.Id} and firstname {customerResult2.Firstname}");
         }
 
 
 
 
 
-        
+
     }
 }
